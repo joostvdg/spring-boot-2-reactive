@@ -1,0 +1,48 @@
+pipeline {
+    agent none
+    options {
+        timeout(time: 10, unit: 'MINUTES')
+        timestamps()
+        buildDiscarder(logRotator(numToKeepStr: '5'))
+    }
+    stages {
+        stage('Checkout') {
+            agent { label 'docker' }
+            steps {
+                checkout scm
+            }
+        }
+        stage('Maven Build') {
+            agent {
+                docker {
+                    image 'maven:3-jdk-9-slim'
+                    label 'docker'
+                    args  '-v /home/joost/.m2:/root/.m2'
+                }
+            }
+            steps {
+                sh 'mvn -e clean verify'
+            }
+            post {
+                success {
+                    junit 'target/surefire-reports/**/*.xml'
+                }
+            }
+        }
+        stage('Sonar') {
+            agent {
+                docker {
+                    image 'maven:3-jdk-9-slim'
+                    label 'docker'
+                    args  '-v /home/joost/.m2:/root/.m2'
+                }
+            }
+            steps {
+                withSonarQubeEnv('My SonarQube Server') {
+                     sh 'mvn -e org.sonarsource.scanner.maven:sonar:3.4.0.905'
+                }
+            }
+        }
+    }
+   
+}
