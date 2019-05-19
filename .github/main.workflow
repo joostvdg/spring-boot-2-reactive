@@ -4,7 +4,6 @@ workflow "Jenkins single-shot master" {
 }
 
 action "jenkinsfile-runner-prepackaged" {
-  uses = "jenkinsfile-runner-prepackaged"
-  runs = "jonico/jenkinsfile-runner-github-actions/jenkinsfile-runner-prepackaged@master"
+  uses = "jonico/jenkinsfile-runner-github-actions/jenkinsfile-runner-prepackaged@master"
   secrets = ["GITHUB_TOKEN"]
 }
